@@ -852,6 +852,63 @@ body.modal-open{overflow:hidden;}
 }
 </style>
 
+
+<style id="mobile-vertical-balance-v2">
+/* Mobile vertical balance: keep short slides centered while long slides start safely below the top. */
+@media (max-width:700px){
+  .slide{
+    align-items:stretch !important;
+    justify-content:flex-start !important;
+    padding-top:72px !important;
+    padding-bottom:112px !important;
+    min-height:100svh !important;
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+  }
+  .slide-inner{
+    width:100% !important;
+    max-width:680px !important;
+    margin:0 auto !important;
+    transform:none !important;
+  }
+
+  /* Short slides get natural breathing room instead of hugging the top. */
+  .slide-title .slide-inner,
+  .slide.slide-close .slide-inner{
+    min-height:calc(100svh - 184px) !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+  }
+
+  /* Content-heavy slides: slightly lower starting point, never push content off-screen. */
+  .ti-slide .slide-inner,
+  .application-slide .slide-inner,
+  .function-slide-2 .slide-inner{
+    padding-top:10px !important;
+  }
+
+  .ti-slide .voc-grid{
+    margin-bottom:2px !important;
+  }
+
+  .application-slide .synthesis{
+    margin-bottom:10px !important;
+  }
+}
+
+@media (max-width:390px){
+  .slide{
+    padding-top:64px !important;
+    padding-bottom:104px !important;
+  }
+  .slide-title .slide-inner,
+  .slide.slide-close .slide-inner{
+    min-height:calc(100svh - 168px) !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
