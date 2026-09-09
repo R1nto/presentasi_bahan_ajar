@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bahan Ajar , Definisi dan Fungsinya · Deck Interaktif v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b14; --bg2:#0b1120; --ink:#eef2ff; --muted:#8b93a7; --muted2:#5b6376;
+  --violet:#8b5cf6; --cyan:#22d3ee; --amber:#fbbf24; --rose:#fb7185; --green:#34d399;
+  --line:rgba(255,255,255,.09); --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.07);
+  --head:'Source Serif 4',Georgia,serif; --body:'Source Sans 3',Arial,sans-serif; --mono:'Source Sans 3',Arial,sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden;-webkit-font-smoothing:antialiased;}
+button{font-family:var(--body);}
+::selection{background:rgba(139,92,246,.4);}
+
+/* ---------- Background layers ---------- */
+#bg{position:fixed;inset:0;z-index:0;}
+.orb{position:fixed;border-radius:50%;filter:blur(110px);z-index:0;pointer-events:none;opacity:.5;}
+.orb1{width:52vw;height:52vw;left:-16vw;top:-18vw;background:radial-gradient(circle,rgba(139,92,246,.34),transparent 65%);animation:drift1 22s ease-in-out infinite alternate;}
+.orb2{width:44vw;height:44vw;right:-14vw;bottom:-16vw;background:radial-gradient(circle,rgba(34,211,238,.28),transparent 65%);animation:drift2 26s ease-in-out infinite alternate;}
+.orb3{width:30vw;height:30vw;right:16vw;top:-10vw;background:radial-gradient(circle,rgba(251,191,36,.16),transparent 65%);animation:drift1 30s ease-in-out infinite alternate-reverse;}
+@keyframes drift1{from{transform:translate(0,0) scale(1);}to{transform:translate(6vw,4vw) scale(1.12);}}
+@keyframes drift2{from{transform:translate(0,0) scale(1.1);}to{transform:translate(-5vw,-6vw) scale(.95);}}
+.grid-overlay{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse at 50% 45%,black 30%,transparent 78%);}
+.noise{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(0,0,0,.5));}
+
+/* ---------- Custom cursor ---------- */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:100;border-radius:50%;display:none;}
+@media (hover:hover) and (pointer:fine){
+  .cursor-dot,.cursor-ring{display:block;}
+  .cursor-dot{width:7px;height:7px;background:var(--cyan);transform:translate(-50%,-50%);box-shadow:0 0 10px rgba(34,211,238,.9);}
+  .cursor-ring{width:34px;height:34px;border:1.5px solid rgba(139,92,246,.55);transform:translate(-50%,-50%);transition:width .25s var(--ease),height .25s var(--ease),border-color .25s;}
+  .cursor-ring.hovering{width:54px;height:54px;border-color:rgba(34,211,238,.8);}
+}
+
+/* ---------- Deck ---------- */
+.deck{position:fixed;inset:0;z-index:2;}
+.progress-top{display:none;}
+#progressFill{height:100%;width:0%;background:linear-gradient(90deg,var(--violet),var(--cyan));transition:width .6s cubic-bezier(.65,0,.35,1);box-shadow:0 0 14px rgba(34,211,238,.7);}
+.slides{display:flex;height:100%;transition:transform .75s cubic-bezier(.7,0,.25,1);will-change:transform;}
+.slide{flex:0 0 100vw;height:100%;display:flex;align-items:center;justify-content:center;padding:8vh 5vw 17vh;position:relative;overflow-y:auto;overflow-x:hidden;}
+.slide-inner{max-width:1080px;width:100%;margin:0 auto;position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;}
+.slide .anim{opacity:0;will-change:transform,opacity;}
+.slide.in .anim{animation:rise .72s var(--ease) both;animation-delay:var(--d,0s);}
+.slides > .slide:first-child .simple-title{opacity:1;}
+@keyframes rise{0%{opacity:0;transform:translateY(18px) scale(.985);filter:blur(3px);}55%{opacity:1;}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}}
+.slide.in .headline{animation-name:headlineIn;}
+@keyframes headlineIn{0%{opacity:0;transform:translateY(16px);}65%{opacity:1;transform:translateY(-2px);}100%{opacity:1;transform:translateY(0);}}
+
+
+/* ---------- Subtle interaction motion ---------- */
+.interactive-lift{transition:transform .28s var(--ease),border-color .28s ease,box-shadow .28s ease;}
+.interactive-lift:hover{transform:translateY(-3px);}
+.btn-ghost:hover,.filter-btn:hover,.chip:hover,.compare-col:hover,.flow-step:hover,.q-opt:hover{transform:translateY(-2px);}
+.example-row:hover .ico{transform:translateY(-2px) scale(1.03);}
+.slide.in .deco{animation:floaty 8s ease-in-out infinite;}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
+}
+
+/* decorative floating emoji */
+.deco{position:absolute;font-size:clamp(64px,9vw,120px);opacity:.09;right:-1%;top:6%;pointer-events:none;user-select:none;animation:floaty 6s ease-in-out infinite;filter:blur(.4px);z-index:0;}
+.deco.d2{right:auto;left:-2%;top:auto;bottom:4%;animation-delay:-3s;opacity:.07;}
+
+.wm{position:absolute;right:0;bottom:-4vh;font-family:var(--head);font-weight:800;font-size:clamp(110px,17vw,220px);line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.05);pointer-events:none;user-select:none;z-index:0;}
+
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:20px;}
+.eyebrow::before{content:'';width:26px;height:1px;background:linear-gradient(90deg,var(--violet),var(--cyan));}
+h1,h2,h3{font-family:var(--head);font-weight:700;line-height:1.1;}
+.headline{font-size:clamp(27px,3.4vw,44px);max-width:20ch;margin-bottom:22px;}
+.headline .grad{background:linear-gradient(92deg,var(--violet),var(--cyan) 60%,var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% 100%;animation:gradShift 6s linear infinite;}
+@keyframes gradShift{to{background-position:200% 0;}}
+.lede{font-size:clamp(15px,1.6vw,20px);font-weight:400;line-height:1.65;max-width:46ch;color:#c9d0e0;}
+.hint{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted2);margin-top:14px;}
+.hint .pulse{width:7px;height:7px;border-radius:50%;background:var(--cyan);animation:pulse 1.6s ease infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,211,238,.5);}50%{box-shadow:0 0 0 7px rgba(34,211,238,0);}}
+
+/* spotlight hover */
+.spot{position:relative;}
+.spot::before{content:'';position:absolute;inset:0;border-radius:inherit;z-index:0;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(139,92,246,.14),transparent 45%);
+  opacity:0;transition:opacity .35s;pointer-events:none;}
+.spot:hover::before{opacity:1;}
+.spot>*{position:relative;z-index:1;}
+
+/* ---------- Title slide ---------- */
+.kicker{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:13px;color:var(--cyan);border:1px solid rgba(34,211,238,.3);background:rgba(34,211,238,.06);padding:8px 16px;border-radius:100px;margin-bottom:28px;}
+.kicker .dot-live{width:7px;height:7px;border-radius:50%;background:var(--cyan);animation:pulse 1.6s infinite;}
+.slide-title h1{font-size:clamp(42px,6.2vw,82px);max-width:15ch;font-weight:600;letter-spacing:-.025em;line-height:1.05;}
+.slide-title h1 .shine{color:var(--ink);background:none;-webkit-text-fill-color:currentColor;}
+@keyframes shine{to{background-position:220% 0;}}
+.simple-title{width:min(980px,100%);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 2vw;transform:none;}
+.simple-title h1{font-family:var(--head);font-size:clamp(40px,6vw,78px);font-weight:600;line-height:1.08;letter-spacing:-.028em;max-width:17ch;margin:0 auto;animation:titleFloat 9s ease-in-out infinite;}
+.title-line{width:88px;height:2px;background:var(--cyan);margin:26px auto 20px;position:relative;overflow:hidden;}
+.title-line::after{content:'';position:absolute;top:0;left:-35%;width:35%;height:100%;background:#fff;opacity:.65;animation:titleSweep 3.8s ease-in-out infinite;}
+.simple-title .names{font-family:var(--body);font-size:clamp(14px,1.5vw,18px);color:var(--muted);letter-spacing:.01em;max-width:90%;line-height:1.55;}
+@keyframes titleFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+@keyframes titleSweep{0%{left:-35%;opacity:0;}20%{opacity:.7;}55%{left:100%;opacity:.7;}70%,100%{left:100%;opacity:0;}}
+.simple-title .names strong{color:var(--ink);font-weight:600;}
+.title-sub{margin-top:22px;font-size:clamp(15px,1.55vw,19px);color:var(--muted);max-width:54ch;line-height:1.7;}
+.stat-strip{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;}
+.stat-card{border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(8px);border-radius:16px;padding:16px 22px;min-width:130px;transition:transform .3s var(--ease),border-color .3s;}
+.stat-card:hover{transform:translateY(-5px);border-color:rgba(139,92,246,.5);}
+.stat-num{font-family:var(--head);font-weight:800;font-size:30px;background:linear-gradient(92deg,var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;}
+.float-chips{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap;}
+.f-chip{display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:14px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(8px);font-size:14px;font-weight:500;animation:floaty 5s ease-in-out infinite;transition:border-color .3s;}
+.f-chip:hover{border-color:var(--cyan);}
+.f-chip .ico{font-size:18px;}
+.f-chip:nth-child(2){animation-delay:-1.6s;}
+.f-chip:nth-child(3){animation-delay:-3.2s;}
+@keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.title-meta{margin-top:34px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted);}
+.title-meta .names strong{color:var(--ink);font-weight:600;}
+.key-hints{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.key-hints span{font-family:var(--mono);font-size:11px;color:var(--muted2);border:1px solid var(--line);border-radius:6px;padding:4px 9px;background:rgba(255,255,255,.02);}
+.key-hints b{color:var(--muted);font-weight:500;}
+
+/* ---------- Marquee ---------- */
+.marquee{display:none;position:absolute;left:0;right:0;bottom:88px;overflow:hidden;z-index:20;pointer-events:none;opacity:.55;
+  border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);padding:8px 0;
+  background:rgba(255,255,255,.015);backdrop-filter:blur(4px);}
+.marquee-track{display:flex;gap:48px;white-space:nowrap;width:max-content;animation:marquee 28s linear infinite;font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2);}
+.marquee-track span i{font-style:normal;color:var(--cyan);margin-right:48px;}
+@keyframes marquee{to{transform:translateX(-50%);}}
+
+
+/* ---------- Readability & responsive balance ---------- */
+.function-grid-four{grid-template-columns:repeat(4,minmax(0,1fr));}
+.function-grid-four .function-card{min-height:150px;}
+.function-card b,.voc-card b,.format-card b{font-size:16px;line-height:1.3;}
+.function-card small,.voc-card small,.format-card span{font-size:13.5px;line-height:1.5;}
+.lede{font-size:clamp(16px,1.55vw,19px);}
+.eyebrow{font-size:13px;}
+
+/* ---------- Slide 1 · chips ---------- */
+.def-card{margin-top:26px;max-width:640px;border:1px solid var(--line);border-radius:18px;padding:20px 24px;background:linear-gradient(120deg,rgba(139,92,246,.09),rgba(34,211,238,.05));position:relative;overflow:hidden;}
+.def-card::before{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);animation:sheen 4.5s ease-in-out infinite;}
+@keyframes sheen{0%{left:-60%;}55%,100%{left:130%;}}
+.def-quote{font-family:var(--head);font-size:clamp(15px,1.6vw,19px);line-height:1.6;color:#dfe4f2;}
+.def-quote b{color:var(--cyan);}
+.chips{display:flex;gap:14px;margin-top:22px;flex-wrap:wrap;}
+.chip{border:1px solid var(--line);background:var(--glass);border-radius:16px;padding:15px 22px;cursor:pointer;text-align:left;color:var(--muted);transition:border-color .3s,background .3s,transform .3s;position:relative;overflow:hidden;min-width:150px;}
+.chip b{display:block;color:var(--ink);font-family:var(--head);font-size:17px;margin-bottom:3px;font-weight:600;}
+.chip small{font-size:12.5px;}
+.chip:hover{transform:translateY(-3px);border-color:rgba(139,92,246,.5);}
+.chip.active{border-color:var(--violet);background:rgba(139,92,246,.1);}
+.chip .plus-ico{position:absolute;top:12px;right:14px;width:16px;height:16px;transition:transform .35s cubic-bezier(.65,0,.35,1);}
+.chip .plus-ico::before,.chip .plus-ico::after{content:'';position:absolute;background:var(--cyan);border-radius:2px;}
+.chip .plus-ico::before{left:0;top:7px;width:16px;height:2px;}
+.chip .plus-ico::after{left:7px;top:0;width:2px;height:16px;}
+.chip.active .plus-ico{transform:rotate(135deg);}
+.chip-panel{max-width:640px;overflow:hidden;max-height:0;opacity:0;transition:max-height .45s cubic-bezier(.65,0,.35,1),opacity .35s,margin-top .45s;margin-top:0;}
+.chip-panel.open{max-height:150px;opacity:1;margin-top:18px;}
+.chip-panel-inner{border-left:2px solid var(--violet);padding:6px 20px 6px 18px;font-size:15.5px;line-height:1.65;color:#c9d0e0;background:linear-gradient(90deg,rgba(139,92,246,.07),transparent 60%);border-radius:0 12px 12px 0;}
+
+/* ---------- Slide 2 · compare ---------- */
+.compare{display:grid;grid-template-columns:1fr auto 1fr;gap:26px;max-width:960px;margin-top:24px;perspective:1200px;align-items:stretch;}
+.vs-badge{align-self:center;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:800;font-size:15px;color:var(--ink);
+  background:linear-gradient(135deg,rgba(139,92,246,.35),rgba(34,211,238,.3));border:1px solid var(--line);box-shadow:0 0 24px rgba(139,92,246,.3);animation:vsPulse 3s ease-in-out infinite;}
+@keyframes vsPulse{0%,100%{box-shadow:0 0 18px rgba(139,92,246,.25);}50%{box-shadow:0 0 34px rgba(34,211,238,.45);}}
+.compare-col{cursor:pointer;border:1px solid var(--line);border-radius:20px;padding:24px 26px;background:var(--glass);backdrop-filter:blur(8px);transition:border-color .3s,box-shadow .3s;transform-style:preserve-3d;will-change:transform;}
+.compare-col:hover{box-shadow:0 20px 50px rgba(0,0,0,.35);}
+.compare-col.ochre.open{border-color:rgba(251,191,36,.55);}
+.compare-col.teal.open{border-color:rgba(34,211,238,.55);}
+.compare-name{font-family:var(--head);font-size:22px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px;}
+.compare-col.ochre .compare-name{color:var(--amber);}
+.compare-col.teal .compare-name{color:var(--cyan);}
+.chev{font-size:14px;color:var(--muted2);transition:transform .35s cubic-bezier(.65,0,.35,1);}
+.compare-col.open .chev{transform:rotate(90deg);}
+.compare-focus{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:14px;font-weight:600;}
+.compare-col p.base{color:#d5dbe8;font-size:15.5px;line-height:1.6;}
+.compare-extra{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.65,0,.35,1),opacity .35s,margin-top .35s;opacity:0;}
+.compare-col.open .compare-extra{max-height:180px;opacity:1;margin-top:14px;}
+.compare-extra-inner{font-size:14px;color:var(--muted);line-height:1.65;border-top:1px dashed var(--line);padding-top:13px;}
+.synthesis{margin-top:24px;padding:16px 22px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(90deg,rgba(139,92,246,.08),rgba(34,211,238,.06));font-size:15.5px;color:#c9d0e0;max-width:70ch;line-height:1.6;}
+
+/* ---------- Slide 3 · checklist ---------- */
+.split{display:grid;grid-template-columns:1fr 1px 1fr;gap:36px;margin-top:20px;max-width:940px;align-items:start;}
+.split-div{background:var(--line);}
+.role-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.role-name{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+.role-count{font-family:var(--mono);font-size:12px;color:var(--cyan);}
+.role-list{list-style:none;}
+.role-list li{display:flex;align-items:center;gap:14px;font-size:17px;padding:13px 6px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;transition:color .25s,background .25s,padding-left .25s;color:#d5dbe8;font-weight:500;border-radius:10px;}
+.role-list li:hover{background:rgba(255,255,255,.03);padding-left:12px;color:var(--ink);}
+.role-list li:last-child{border-bottom:none;}
+.cbox{flex-shrink:0;width:22px;height:22px;border-radius:7px;border:1.5px solid var(--muted2);position:relative;transition:background .25s,border-color .25s,transform .15s;}
+.role-list li:active .cbox{transform:scale(.85);}
+.cbox svg{position:absolute;inset:2px;stroke:#070b14;stroke-width:3.4;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .35s cubic-bezier(.65,0,.35,1) .05s;}
+.role-list li.done{color:var(--muted2);text-decoration:line-through;text-decoration-color:var(--muted2);}
+.role-list li.done .cbox{background:var(--green);border-color:var(--green);animation:pop .35s cubic-bezier(.34,1.56,.64,1);}
+.role-list li.done .cbox svg{stroke-dashoffset:0;}
+@keyframes pop{0%{transform:scale(.6);}60%{transform:scale(1.2);}100%{transform:scale(1);}}
+.progress-row{display:flex;align-items:center;gap:22px;margin-top:26px;max-width:940px;}
+.ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;background:conic-gradient(var(--cyan) 0deg,rgba(255,255,255,.07) 0deg);transition:background .4s;flex-shrink:0;}
+.ring::before{content:'';position:absolute;inset:6px;border-radius:50%;background:var(--bg2);}
+.ring span{position:relative;font-family:var(--mono);font-size:13px;color:var(--ink);}
+.progress-line{font-size:14px;color:var(--muted);line-height:1.5;}
+.progress-line strong{color:var(--cyan);font-weight:600;}
+
+/* ---------- Slide 4 · flow ---------- */
+.flow{display:flex;align-items:stretch;margin-top:30px;flex-wrap:wrap;}
+.flow-step{border:1px solid var(--line);border-radius:18px;padding:20px 24px;min-width:160px;cursor:pointer;background:var(--glass);backdrop-filter:blur(8px);transition:border-color .3s,background .3s,transform .3s,box-shadow .3s;position:relative;overflow:hidden;flex:1;}
+.flow-step:hover{transform:translateY(-4px);}
+.flow-step.active{border-color:var(--cyan);background:rgba(34,211,238,.08);animation:stepGlow 2.2s ease-in-out infinite;}
+@keyframes stepGlow{0%,100%{box-shadow:0 0 0 1px rgba(34,211,238,.25),0 10px 30px rgba(34,211,238,.08);}50%{box-shadow:0 0 0 1px rgba(34,211,238,.55),0 10px 44px rgba(34,211,238,.22);}}
+.flow-step .k{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);margin-bottom:8px;font-weight:600;}
+.flow-step .v{font-family:var(--head);font-size:17px;font-weight:600;}
+.flow-arrow{display:flex;align-items:center;padding:0 14px;position:relative;min-width:56px;}
+.flow-arrow .track{position:relative;flex:1;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
+.flow-arrow .fill{position:absolute;inset:0;background:linear-gradient(90deg,var(--violet),var(--cyan));transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.65,0,.35,1);}
+.flow-arrow.lit .fill{transform:scaleX(1);}
+.flow-arrow .head{width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid rgba(255,255,255,.2);margin-left:6px;transition:border-left-color .4s;}
+.flow-arrow.lit .head{border-left-color:var(--cyan);}
+.flow-targets{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.flow-targets span{font-size:12px;border:1px solid var(--line);border-radius:100px;padding:5px 13px;color:var(--muted);cursor:pointer;transition:all .25s;}
+.flow-targets span:hover{border-color:var(--muted);transform:translateY(-2px);}
+.flow-targets span.active{border-color:var(--amber);color:var(--amber);background:rgba(251,191,36,.08);}
+.flow-detail{max-width:600px;margin-top:24px;max-height:0;overflow:hidden;opacity:0;transition:max-height .4s cubic-bezier(.65,0,.35,1),opacity .3s;}
+.flow-detail.open{max-height:120px;opacity:1;}
+.flow-detail-inner{font-size:15.5px;color:#c9d0e0;border-left:2px solid var(--cyan);padding-left:16px;line-height:1.6;}
+.principle{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap;}
+.principle span{font-size:12.5px;font-family:var(--mono);border:1px solid rgba(139,92,246,.35);background:rgba(139,92,246,.07);color:#c9d0e0;border-radius:100px;padding:7px 16px;}
+
+/* ---------- Slide 5 · duality ---------- */
+.duality{display:flex;align-items:center;gap:26px;margin-top:20px;flex-wrap:wrap;}
+.word-btn{background:transparent;border:none;cursor:pointer;padding:6px 4px;position:relative;font-family:var(--head);font-weight:800;font-size:clamp(42px,5.8vw,78px);line-height:1;opacity:.38;transition:opacity .3s,transform .3s,color .3s;color:var(--amber);}
+.word-btn.b{color:var(--cyan);}
+.word-btn::after{content:'';position:absolute;left:0;right:0;bottom:-6px;height:5px;border-radius:4px;transform:scaleX(0);transition:transform .4s cubic-bezier(.65,0,.35,1);}
+.word-btn.a::after{background:var(--amber);}
+.word-btn.b::after{background:var(--cyan);}
+.word-btn.active{opacity:1;transform:translateY(-4px);}
+.word-btn.active::after{transform:scaleX(1);}
+.plus{font-size:30px;color:var(--muted2);font-family:var(--head);}
+.duality-note{margin-top:22px;font-size:15.5px;color:var(--muted);max-width:52ch;min-height:28px;line-height:1.6;transition:opacity .25s,transform .25s;}
+.duality-note.swap{opacity:0;transform:translateY(8px);}
+.duo-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;max-width:720px;}
+.duo-card{border:1px solid var(--line);border-radius:16px;padding:18px 22px;background:var(--glass);transition:transform .3s var(--ease),border-color .3s;}
+.duo-card:hover{transform:translateY(-4px);}
+.duo-card.warn{border-color:rgba(251,113,133,.3);}
+.duo-card.ok{border-color:rgba(52,211,153,.3);}
+.duo-card h4{font-family:var(--head);font-size:15px;margin-bottom:6px;}
+.duo-card.warn h4{color:var(--rose);}
+.duo-card.ok h4{color:var(--green);}
+.duo-card p{font-size:13.5px;color:var(--muted);line-height:1.6;}
+
+/* ---------- Slide 6 · filter ---------- */
+.filter-bar{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+.filter-btn{border:1px solid var(--line);background:var(--glass);color:var(--muted);border-radius:100px;padding:9px 20px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all .25s;}
+.filter-btn:hover{border-color:var(--muted);color:var(--ink);transform:translateY(-2px);}
+.filter-btn.active{border-color:var(--cyan);color:var(--ink);background:rgba(34,211,238,.1);box-shadow:0 0 18px rgba(34,211,238,.15);}
+.examples{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;max-width:860px;}
+.example-row{display:flex;gap:18px;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--glass);align-items:center;overflow:hidden;max-height:130px;opacity:1;transition:opacity .35s,max-height .35s cubic-bezier(.65,0,.35,1),padding .35s,margin .35s,transform .35s,border-color .3s;cursor:default;}
+.example-row:hover{transform:translateY(-4px);border-color:rgba(139,92,246,.45);}
+.example-row.hidden{opacity:0;max-height:0;padding-top:0;padding-bottom:0;margin:0;border-width:0;pointer-events:none;transform:scale(.96);}
+.example-row .ico{width:52px;height:52px;flex-shrink:0;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--glass2);border:1px solid var(--line);transition:transform .3s var(--ease);}
+.example-row:hover .ico{transform:scale(1.12) rotate(-6deg);}
+.example-row[data-cat="praktik"] .ico{border-color:rgba(34,211,238,.35);}
+.example-row[data-cat="konsep"] .ico{border-color:rgba(251,191,36,.35);}
+.example-body{flex:1;}
+.example-tag{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+.example-row[data-cat="praktik"] .example-tag{color:var(--cyan);}
+.example-row[data-cat="konsep"] .example-tag{color:var(--amber);}
+.example-text{font-size:15.5px;color:#d5dbe8;margin-top:3px;line-height:1.5;}
+
+/* ---------- Slide 7 · close ---------- */
+.close-text{font-family:var(--head);font-size:clamp(22px,2.8vw,36px);line-height:1.42;max-width:26ch;font-weight:700;}
+.close-text .w{display:inline-block;opacity:0;transform:translateY(20px) rotate(2deg);}
+.slide.in .close-text .w{animation:wordIn .6s var(--ease) both;animation-delay:calc(.25s + var(--i)*.05s);}
+@keyframes wordIn{to{opacity:1;transform:translateY(0) rotate(0);}}
+.close-text .hl-c{color:var(--cyan);}
+.close-text .hl-v{color:var(--violet);}
+.close-text .hl-a{color:var(--amber);}
+.close-sub{margin-top:24px;font-size:16px;color:var(--muted);max-width:52ch;line-height:1.7;}
+.takeaways{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap;}
+.takeaway{border:1px solid var(--line);border-radius:14px;padding:14px 20px;background:var(--glass);font-size:14px;color:#c9d0e0;display:flex;gap:10px;align-items:center;transition:transform .3s var(--ease),border-color .3s;}
+.takeaway:hover{transform:translateY(-4px);border-color:rgba(34,211,238,.45);}
+.replay-btn{margin-top:28px;}
+
+
+/* ---------- Slide 07 · TI layout refinement ---------- */
+.ti-slide{padding-top:6.5vh;padding-bottom:15vh;}
+.ti-slide .slide-inner{max-width:1080px;}
+.ti-slide .deco{right:2.5%;top:8%;font-size:clamp(78px,9vw,112px);opacity:.08;}
+.ti-slide .headline{max-width:18ch;margin-bottom:16px;}
+.ti-slide .lede{max-width:68ch;font-size:clamp(16px,1.5vw,18px);line-height:1.6;}
+.ti-slide .hint{margin-top:12px;margin-bottom:8px;}
+.ti-slide .voc-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:4px;}
+.ti-slide .voc-card{min-height:118px;padding:18px 18px 16px;display:grid;grid-template-columns:42px 1fr;grid-template-rows:auto auto;column-gap:14px;align-items:start;}
+.ti-slide .voc-card span{grid-row:1 / span 2;width:42px;height:42px;margin:0;display:flex;align-items:center;justify-content:center;border-radius:13px;background:rgba(255,255,255,.045);border:1px solid var(--line);font-size:22px;}
+.ti-slide .voc-card:nth-child(1) span{box-shadow:0 0 24px rgba(139,92,246,.18);}
+.ti-slide .voc-card:nth-child(2) span{box-shadow:0 0 24px rgba(34,211,238,.18);}
+.ti-slide .voc-card:nth-child(3) span{box-shadow:0 0 24px rgba(251,191,36,.18);}
+.ti-slide .voc-card b{font-size:16px;line-height:1.25;align-self:end;}
+.ti-slide .voc-card small{font-size:12.5px;line-height:1.45;margin-top:4px;}
+.ti-slide .duality{gap:16px;margin-top:26px;align-items:center;}
+.ti-slide .word-btn{font-size:clamp(42px,5vw,66px);padding:3px 2px;}
+.ti-slide .plus{font-size:27px;}
+.ti-slide .duality-note{margin-top:12px;max-width:64ch;font-size:14.5px;}
+.ti-slide .wm{right:1%;bottom:-2vh;font-size:clamp(120px,17vw,210px);opacity:.035;}
+@media (max-width:900px){
+  .ti-slide .voc-grid{grid-template-columns:1fr 1fr;}
+  .ti-slide .voc-card{min-height:110px;}
+}
+@media (max-width:700px){
+  .ti-slide{padding-top:5vh;}
+  .ti-slide .deco{right:0;top:3%;font-size:72px;}
+  .ti-slide .voc-grid{grid-template-columns:1fr;gap:10px;}
+  .ti-slide .voc-card{min-height:0;grid-template-columns:38px 1fr;padding:14px;}
+  .ti-slide .voc-card span{width:38px;height:38px;font-size:19px;}
+  .ti-slide .duality{margin-top:20px;}
+  .ti-slide .word-btn{font-size:clamp(38px,11vw,54px);}
+}
+
+/* ---------- Slide 6 · application refinement ---------- */
+.application-slide .slide-inner{max-width:1180px;}
+.application-slide .headline{max-width:28ch;margin-bottom:18px;}
+.application-slide .lede{max-width:68ch;}
+.application-slide .format-row{margin-top:24px;margin-bottom:18px;gap:14px;}
+.application-slide .format-card{min-height:78px;padding:16px 18px;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+.application-slide .format-card span{max-width:30ch;text-align:center;}
+.application-slide .examples{grid-template-columns:repeat(3,1fr);gap:14px;max-width:none;margin-top:14px;}
+.application-slide .example-row{min-height:112px;padding:16px 18px;align-items:flex-start;}
+.application-slide .example-row .ico{width:48px;height:48px;font-size:22px;}
+.application-slide .example-text{font-size:14px;line-height:1.5;}
+.application-slide .synthesis{max-width:none;margin-top:18px;padding:14px 18px;font-size:14.5px;}
+.application-slide .deco{opacity:.045;font-size:76px;right:4%;top:8%;}
+.application-slide .wm{opacity:.035;font-size:130px;right:3%;bottom:2%;}
+@media (max-width:900px){
+  .application-slide .examples{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:700px){
+  .application-slide .headline{max-width:18ch;}
+  .application-slide .format-row{grid-template-columns:1fr;}
+  .application-slide .format-card{min-height:70px;}
+  .application-slide .examples{grid-template-columns:1fr;}
+  .application-slide .example-row{min-height:unset;}
+  .application-slide .synthesis{font-size:14px;}
+}
+
+
+/* ---------- Slide 5 refinement ---------- */
+.function-slide-2 .slide-inner{max-width:1160px;}
+.function-slide-2 .headline{max-width:24ch;margin-bottom:16px;}
+.function-slide-2 .lede{max-width:66ch;font-size:clamp(17px,1.7vw,21px);line-height:1.55;}
+.function-slide-2 .hint{font-size:13.5px;margin-top:16px;}
+.function-slide-2 .function-grid-four{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:4px;}
+.function-slide-2 .function-card{min-height:150px;padding:20px 22px;display:flex;flex-direction:column;justify-content:flex-start;}
+.function-slide-2 .fc-num{font-size:12px;margin-bottom:10px;}
+.function-slide-2 .function-card b{font-size:18px;line-height:1.3;}
+.function-slide-2 .function-card small{font-size:15px;line-height:1.55;margin-top:9px;}
+.function-slide-2 .function-panel{margin-top:14px;}
+.function-slide-2 .function-panel-inner{padding:15px 18px;font-size:15px;line-height:1.6;}
+@media (max-width:820px){
+  .function-slide-2 .headline{max-width:22ch;}
+  .function-slide-2 .lede{font-size:17px;max-width:100%;}
+  .function-slide-2 .function-grid-four{grid-template-columns:1fr 1fr;gap:12px;}
+  .function-slide-2 .function-card{min-height:148px;padding:17px;}
+  .function-slide-2 .function-card b{font-size:17px;}
+  .function-slide-2 .function-card small{font-size:14px;}
+}
+@media (max-width:560px){
+  .function-slide-2 .function-grid-four{grid-template-columns:1fr;}
+  .function-slide-2 .function-card{min-height:0;padding:16px 17px;}
+  .function-slide-2 .function-card b{font-size:17px;}
+  .function-slide-2 .function-card small{font-size:14px;line-height:1.5;}
+}
+
+/* ---------- Buttons ---------- */
+.btn-ghost{border:1px solid var(--line);background:var(--glass);color:var(--ink);border-radius:100px;padding:11px 24px;font-size:14px;font-weight:500;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:8px;}
+.btn-ghost:hover{border-color:var(--cyan);background:rgba(34,211,238,.08);transform:translateY(-2px);}
+.btn-ghost[disabled]{opacity:.32;cursor:default;transform:none;}
+
+/* ---------- Controls ---------- */
+.controls{position:absolute;left:0;right:0;bottom:24px;display:flex;align-items:center;justify-content:center;gap:18px;z-index:25;}
+.nav-btn{background:var(--glass);border:1px solid var(--line);color:var(--ink);width:44px;height:44px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:border-color .25s,background .25s;will-change:transform;}
+.nav-btn:hover{border-color:var(--cyan);background:rgba(34,211,238,.1);}
+.nav-btn:active{transform:scale(.94);}
+.dots{display:none;}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);cursor:pointer;transition:all .3s cubic-bezier(.65,0,.35,1);}
+.dot:hover{background:rgba(255,255,255,.45);}
+.dot.active{background:var(--cyan);transform:scale(1.45);box-shadow:0 0 12px rgba(34,211,238,.8);}
+.tool-btns{position:absolute;right:50%;transform:translateX(50%);bottom:78px;display:flex;gap:10px;z-index:25;}
+.tool-btn{background:var(--glass);border:1px solid var(--line);color:var(--muted);font-size:12px;padding:8px 15px;border-radius:100px;cursor:pointer;backdrop-filter:blur(8px);transition:all .25s;display:flex;align-items:center;gap:7px;}
+.tool-btn:hover{color:var(--ink);border-color:var(--muted);}
+.tool-btn.on{color:var(--cyan);border-color:var(--cyan);background:rgba(34,211,238,.08);}
+.counter{display:none;}
+.slide-hint-corner{display:none;}
+.n-label{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;font-weight:600;}
+.n-text{font-size:15.5px;color:#d5dbe8;max-width:74ch;line-height:1.65;}
+#confetti{position:fixed;inset:0;z-index:60;pointer-events:none;}
+
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+@media (max-width:820px){
+  .slide{padding:6vh 6vw 18vh;min-height:100svh;}
+  .slide-inner{max-width:100%;}
+  .simple-title{width:100%;padding:0 1vw;transform:translateY(-2vh);}
+  .simple-title h1{font-size:clamp(34px,10.5vw,58px);max-width:12ch;line-height:1.08;letter-spacing:-.02em;}
+  .title-line{width:68px;margin:20px auto 16px;}
+  .simple-title .names{font-size:clamp(13px,3.8vw,16px);max-width:95%;}
+  .compare,.split{grid-template-columns:1fr;gap:18px;}
+  .vs-badge,.split-div{display:none;}
+  .flow{flex-direction:column;align-items:stretch;}
+  .flow-arrow{padding:10px 0;min-width:0;}
+  .flow-arrow .track{width:2px;height:26px;}
+  .flow-arrow .fill{transform:scaleY(0);transform-origin:top;}
+  .flow-arrow.lit .fill{transform:scaleY(1);}
+  .flow-arrow .head{display:none;}
+  .examples,.duo-cards{grid-template-columns:1fr;}
+  .counter,.slide-hint-corner{display:none;}
+  .marquee{display:none;}
+  .deco{font-size:70px;opacity:.06;}
+  .wm{font-size:100px;}
+  .duality{gap:14px;}
+  .tool-btns{bottom:76px;}
+}
+@media (max-width:480px){
+  .slide{padding:5vh 5vw 17vh;}
+  .simple-title{transform:none;padding:0;}
+  .simple-title h1{font-size:clamp(32px,11vw,46px);max-width:11ch;}
+  .title-line{width:56px;margin:18px auto 14px;}
+  .simple-title .names{font-size:13px;line-height:1.6;}
+  .controls{bottom:14px;gap:12px;}
+  .nav-btn{width:42px;height:42px;}
+  .tool-btns{bottom:68px;gap:7px;}
+  .tool-btn{font-size:11px;padding:7px 12px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01s !important;transition-duration:.01s !important;}
+}
+
+/* ---------- Title centering + mobile refinement ---------- */
+.slide.slide-title{padding:0 5vw;}
+.slide-title .slide-inner{max-width:none;width:100%;align-items:center;justify-content:center;text-align:center;}
+.simple-title{width:min(1100px,100%);min-height:46vh;padding:0 24px;transform:none;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.simple-title h1{width:100%;max-width:none;margin:0 auto;font-size:clamp(42px,6vw,78px);line-height:1.03;letter-spacing:-.035em;font-weight:600;}
+.simple-title h1 .title-main{display:inline-block;font-size:.72em;letter-spacing:-.02em;font-weight:500;color:#cbd2df;margin-bottom:.08em;}
+.simple-title h1 .shine{color:var(--ink);background:none;-webkit-text-fill-color:currentColor;}
+.title-line{width:108px;height:2px;margin:28px auto 18px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+.simple-title .names{font-size:clamp(14px,1.35vw,17px);max-width:100%;line-height:1.5;color:#aab2c2;}
+
+@media (max-width:700px){
+  .slide.slide-title{padding:0 18px;}
+  .simple-title{min-height:0;width:100%;padding:0 8px;}
+  .simple-title h1{font-size:clamp(36px,10.8vw,56px);line-height:1.02;letter-spacing:-.03em;}
+  .simple-title h1 .title-main{font-size:.66em;margin-bottom:.1em;}
+  .title-line{width:78px;margin:22px auto 14px;}
+  .simple-title .names{font-size:clamp(12px,3.6vw,15px);line-height:1.45;max-width:92%;}
+}
+
+@media (max-width:390px){
+  .simple-title h1{font-size:34px;}
+  .simple-title .names{font-size:12px;}
+}
+
+
+/* ---------- Content additions from the paper ---------- */
+.function-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;}
+.function-card,.voc-card,.format-card{border:1px solid var(--line);background:var(--glass);color:var(--ink);border-radius:16px;text-align:left;padding:16px;cursor:pointer;transition:transform .28s var(--ease),background .28s ease,border-color .28s ease,box-shadow .28s ease;}
+.function-card:hover,.voc-card:hover,.format-card:hover{transform:translateY(-3px);background:var(--glass2);border-color:rgba(34,211,238,.35);box-shadow:0 12px 30px rgba(0,0,0,.18);}
+.fc-num{display:block;font-size:11px;letter-spacing:.12em;color:var(--cyan);margin-bottom:8px;}
+.function-card b,.voc-card b,.format-card b{display:block;font-size:15px;line-height:1.25;}
+.function-card small,.voc-card small,.format-card span{display:block;color:var(--muted);font-size:12px;line-height:1.45;margin-top:6px;}
+.function-panel,.voc-panel{display:none;width:100%;margin-top:12px;border-left:2px solid var(--cyan);background:rgba(34,211,238,.045);border-radius:0 12px 12px 0;}
+.function-panel.open,.voc-panel.open{display:block;animation:rise .4s var(--ease) both;}
+.function-panel-inner,.voc-panel-inner{padding:13px 16px;color:#d7deee;font-size:13px;line-height:1.55;}
+.voc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;}
+.voc-card span{font-size:24px;display:block;margin-bottom:10px;}
+.format-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-bottom:14px;}
+.format-card{text-align:center;}
+.format-card b{font-size:14px;}
+.format-card span{font-size:12px;}
+@media (max-width:800px){
+ .function-grid{grid-template-columns:repeat(2,1fr);gap:9px;}
+ .function-card,.voc-card,.format-card{padding:12px;border-radius:13px;}
+ .function-card b,.voc-card b{font-size:13px;}
+ .function-card small,.voc-card small,.format-card span{font-size:11px;}
+ .voc-grid,.format-row{grid-template-columns:1fr;}
+}
+
+/* ---------- Presentation pop-up ---------- */
+.presentation-modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(4,8,18,.68);backdrop-filter:blur(8px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s ease,visibility .28s ease;}
+.presentation-modal.open{opacity:1;visibility:visible;pointer-events:auto;}
+.presentation-modal .modal-box{position:relative;width:min(680px,92vw);max-height:min(78vh,680px);overflow:auto;border:1px solid rgba(112,227,255,.22);border-radius:22px;background:linear-gradient(145deg,rgba(20,27,43,.97),rgba(10,16,29,.98));box-shadow:0 26px 80px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.03) inset;transform:translateY(18px) scale(.98);transition:transform .34s cubic-bezier(.2,.8,.2,1);}
+.presentation-modal.open .modal-box{transform:none;}
+.presentation-modal .modal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:24px 26px 16px;border-bottom:1px solid rgba(255,255,255,.07);}
+.presentation-modal .modal-kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8e9ab0;margin-bottom:7px;}
+.presentation-modal .modal-title{font-family:var(--head);font-size:clamp(22px,3vw,30px);line-height:1.15;font-weight:600;color:#f3f6fb;margin:0;}
+.presentation-modal .modal-close{flex:0 0 auto;width:38px;height:38px;border:1px solid rgba(255,255,255,.1);border-radius:50%;background:rgba(255,255,255,.04);color:#cbd5e1;font-size:22px;line-height:1;cursor:pointer;transition:transform .2s ease,background .2s ease,border-color .2s ease;}
+.presentation-modal .modal-close:hover{transform:rotate(90deg);background:rgba(255,255,255,.08);border-color:rgba(112,227,255,.3);}
+.presentation-modal .modal-body{padding:22px 26px 28px;color:#d5dceb;font-size:clamp(16px,1.7vw,19px);line-height:1.7;}
+.presentation-modal .modal-body p{margin:0;}
+.presentation-modal .modal-accent{width:54px;height:3px;margin:0 0 16px;border-radius:99px;background:linear-gradient(90deg,var(--cyan),rgba(112,227,255,.08));}
+[data-panel], [data-key]{-webkit-tap-highlight-color:transparent;}
+@media (max-width:700px){
+  .presentation-modal{padding:14px;}
+  .presentation-modal .modal-box{width:min(94vw,680px);max-height:82vh;border-radius:18px;}
+  .presentation-modal .modal-top{padding:19px 18px 14px;}
+  .presentation-modal .modal-body{padding:18px 18px 22px;font-size:16px;line-height:1.65;}
+  .presentation-modal .modal-close{width:34px;height:34px;font-size:19px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .presentation-modal,.presentation-modal .modal-box{transition:none !important;}
+}
+
+/* Expandable explanations are presented in the modal instead of inline blocks. */
+.chip-panel,.function-panel,.voc-panel{display:none !important;}
+.compare-extra{display:none !important;}
+body.modal-open{overflow:hidden;}
+
+
+/* ---------- TI slide · final visual cleanup ---------- */
+.ti-slide{
+  padding-top:6vh;
+  padding-bottom:15vh;
+}
+.ti-slide .slide-inner{
+  max-width:1120px;
+  transform:translateY(-1.2vh);
+}
+.ti-slide .eyebrow{
+  margin-bottom:16px;
+}
+.ti-slide .headline{
+  max-width:25ch;
+  margin-bottom:14px;
+  letter-spacing:-.02em;
+}
+.ti-slide .lede{
+  max-width:70ch;
+  margin-bottom:2px;
+  line-height:1.58;
+}
+.ti-slide .hint{
+  margin-top:10px;
+  margin-bottom:2px;
+}
+.ti-slide .voc-grid{
+  width:100%;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+  margin-top:8px;
+}
+.ti-slide .voc-card{
+  min-height:116px;
+  padding:18px 18px 17px;
+  grid-template-columns:48px 1fr;
+  column-gap:13px;
+  border-radius:17px;
+  position:relative;
+}
+.ti-slide .voc-card::after{
+  content:'';
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);
+  opacity:.7;
+}
+.ti-slide .voc-card span{
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  font-size:21px;
+}
+.ti-slide .voc-card b{
+  font-size:16px;
+  line-height:1.25;
+  margin-top:2px;
+}
+.ti-slide .voc-card small{
+  font-size:12.5px;
+  line-height:1.45;
+  margin-top:5px;
+  max-width:30ch;
+}
+.ti-slide .voc-card:hover{
+  transform:translateY(-4px);
+}
+.ti-slide .duality{
+  width:100%;
+  gap:15px;
+  margin-top:24px;
+  align-items:baseline;
+}
+.ti-slide .word-btn{
+  font-size:clamp(44px,5vw,68px);
+  padding:0 2px 4px;
+}
+.ti-slide .plus{
+  font-size:25px;
+  opacity:.9;
+}
+.ti-slide .duality-note{
+  margin-top:9px;
+  max-width:68ch;
+  font-size:14px;
+  line-height:1.55;
+}
+.ti-slide .deco{
+  right:1.5%;
+  top:7%;
+  font-size:clamp(70px,9vw,108px);
+  opacity:.055;
+}
+.ti-slide .wm{
+  right:1%;
+  bottom:-4vh;
+  font-size:clamp(130px,17vw,215px);
+  opacity:.028;
+}
+@media (max-width:900px){
+  .ti-slide .slide-inner{transform:none;}
+  .ti-slide .voc-grid{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:700px){
+  .ti-slide{padding-top:5vh;padding-bottom:17vh;}
+  .ti-slide .deco{right:0;top:4%;font-size:72px;}
+  .ti-slide .voc-grid{grid-template-columns:1fr;gap:11px;margin-top:7px;}
+  .ti-slide .voc-card{min-height:0;padding:14px;grid-template-columns:40px 1fr;}
+  .ti-slide .voc-card span{width:38px;height:38px;font-size:19px;}
+  .ti-slide .duality{margin-top:20px;}
+  .ti-slide .word-btn{font-size:clamp(40px,11vw,54px);}
+}
+
+
+/* ---------- TI cards · final alignment ---------- */
+.ti-slide .voc-card{
+  min-height:118px;
+  padding:17px 18px;
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr);
+  column-gap:14px;
+  align-items:center;
+  text-align:left;
+}
+.ti-slide .voc-card span{
+  grid-row:1;
+  width:44px;
+  height:44px;
+  margin:0;
+  align-self:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:12px;
+  line-height:1;
+}
+.ti-slide .voc-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:5px;
+}
+.ti-slide .voc-card b{
+  margin:0;
+  font-size:16px;
+  line-height:1.2;
+}
+.ti-slide .voc-card small{
+  margin:0;
+  max-width:none;
+  font-size:12.5px;
+  line-height:1.4;
+}
+.ti-slide .voc-card:nth-child(1){border-color:rgba(139,92,246,.20);}
+.ti-slide .voc-card:nth-child(2){border-color:rgba(34,211,238,.20);}
+.ti-slide .voc-card:nth-child(3){border-color:rgba(251,191,36,.20);}
+.ti-slide .voc-card:nth-child(1):hover{border-color:rgba(139,92,246,.55);}
+.ti-slide .voc-card:nth-child(2):hover{border-color:rgba(34,211,238,.55);}
+.ti-slide .voc-card:nth-child(3):hover{border-color:rgba(251,191,36,.55);}
+@media (max-width:700px){
+  .ti-slide .voc-card{min-height:82px;padding:13px 14px;grid-template-columns:40px minmax(0,1fr);column-gap:12px;}
+  .ti-slide .voc-card span{width:38px;height:38px;font-size:19px;}
+}
+
+</style>
+<base target="_blank">
+
+<style id="ti-clean-final">
+/* FINAL: clean alignment for the TI information cards only */
+.ti-slide .voc-grid{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:16px !important;
+  width:100% !important;
+  margin-top:8px !important;
+}
+.ti-slide .voc-card{
+  box-sizing:border-box !important;
+  width:100% !important;
+  min-height:104px !important;
+  height:104px !important;
+  padding:16px 18px !important;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:15px !important;
+  text-align:left !important;
+  overflow:hidden !important;
+  border-radius:17px !important;
+  background:linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.025)) !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 10px 28px rgba(0,0,0,.10) !important;
+}
+.ti-slide .voc-card:nth-child(1){border-color:rgba(139,92,246,.25) !important;}
+.ti-slide .voc-card:nth-child(2){border-color:rgba(34,211,238,.22) !important;}
+.ti-slide .voc-card:nth-child(3){border-color:rgba(251,191,36,.22) !important;}
+.ti-slide .voc-card:hover{transform:translateY(-3px) !important;}
+.ti-slide .voc-card span{
+  flex:0 0 46px !important;
+  width:46px !important;
+  height:46px !important;
+  margin:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:13px !important;
+  font-size:21px !important;
+  line-height:1 !important;
+}
+.ti-slide .voc-card:nth-child(1) span{background:rgba(139,92,246,.09) !important;box-shadow:0 0 22px rgba(139,92,246,.16) !important;}
+.ti-slide .voc-card:nth-child(2) span{background:rgba(34,211,238,.08) !important;box-shadow:0 0 22px rgba(34,211,238,.13) !important;}
+.ti-slide .voc-card:nth-child(3) span{background:rgba(251,191,36,.08) !important;box-shadow:0 0 22px rgba(251,191,36,.12) !important;}
+.ti-slide .voc-copy{
+  min-width:0 !important;
+  flex:1 1 auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  justify-content:center !important;
+  gap:5px !important;
+  text-align:left !important;
+}
+.ti-slide .voc-card b{
+  display:block !important;
+  margin:0 !important;
+  padding:0 !important;
+  font-size:16px !important;
+  line-height:1.2 !important;
+  font-weight:700 !important;
+  text-align:left !important;
+  white-space:nowrap !important;
+}
+.ti-slide .voc-card small{
+  display:block !important;
+  margin:0 !important;
+  padding:0 !important;
+  max-width:100% !important;
+  font-size:12.5px !important;
+  line-height:1.42 !important;
+  color:#8f98ad !important;
+  text-align:left !important;
+}
+/* Keep the section calm and aligned with the cards above */
+.ti-slide .duality{
+  width:auto !important;
+  margin-top:22px !important;
+  gap:15px !important;
+  align-items:baseline !important;
+}
+.ti-slide .duality-note{
+  margin-top:9px !important;
+  max-width:66ch !important;
+}
+@media (max-width:900px){
+  .ti-slide .voc-grid{grid-template-columns:1fr 1fr !important;}
+}
+@media (max-width:700px){
+  .ti-slide .voc-grid{grid-template-columns:1fr !important;gap:10px !important;}
+  .ti-slide .voc-card{height:auto !important;min-height:88px !important;padding:13px 14px !important;gap:12px !important;}
+  .ti-slide .voc-card span{flex-basis:40px !important;width:40px !important;height:40px !important;font-size:19px !important;}
+  .ti-slide .voc-card b{font-size:15px !important;}
+  .ti-slide .voc-card small{font-size:12px !important;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div class="grid-overlay" style="opacity:.12"></div>
+<div class="noise"></div><div class="vignette"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<div class="presentation-modal" id="presentationModal" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-top">
+      <div>
+        <div class="modal-kicker" id="modalKicker">Penjelasan</div>
+        <h3 class="modal-title" id="modalTitle">Detail</h3>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="Tutup">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-accent"></div>
+      <p id="modalBody"></p>
+    </div>
+  </div>
+</div>
+
+<div class="deck">
+  <div class="progress-top"><div id="progressFill"></div></div>
+  <div class="slides" id="slides">
+
+    <!-- 0 · Title -->
+    <section class="slide slide-title">
+      <div class="slide-inner">
+        
+        
+        <div class="simple-title anim" style="--d:.12s">
+          <h1 ><span class="title-main">Bahan Ajar:</span><br><span class="shine">Definisi &amp; Fungsinya</span></h1>
+          <div class="title-line"></div>
+          <p class="names"><strong>Moh. Rizky Dwi Jayanto</strong> &nbsp;·&nbsp; <strong>Muhammad Faishal Hidayat</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1 · Pengertian -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="deco">📚</div>
+        <div class="wm">02</div>
+        <div class="eyebrow anim" style="--d:.05s">Pengertian Bahan Ajar</div>
+        <h2 class="headline anim" style="--d:.15s">Sumber belajar yang <span class="grad">menjembatani</span> guru dan siswa</h2>
+        <div class="def-card spot anim" style="--d:.26s">
+          <p class="def-quote">💬 "Bahan ajar adalah <b>materi atau sumber belajar</b> yang digunakan guru dan siswa untuk membantu proses belajar , baik dalam bentuk <b>cetak</b> maupun <b>digital</b>."</p>
+        </div>
+        <div class="hint anim" style="--d:.36s"><span class="pulse"></span> Klik tiap kartu untuk membuka penjelasannya</div>
+        <div class="chips anim" style="--d:.46s" id="chipGroup">
+          <button class="chip spot" data-panel="p-apa"><span class="plus-ico"></span><b>Apa</b><small>Materi &amp; sumber belajar</small></button>
+          <button class="chip spot" data-panel="p-siapa"><span class="plus-ico"></span><b>Siapa</b><small>Guru dan siswa</small></button>
+          <button class="chip spot" data-panel="p-bentuk"><span class="plus-ico"></span><b>Bentuk</b><small>Cetak &amp; digital</small></button>
+        </div>
+        <div class="chip-panel" data-key="p-apa"><div class="chip-panel-inner">Bisa berupa materi tertulis, gambar, audio, video, atau kombinasinya , apa pun yang mengantarkan isi pelajaran kepada siswa.</div></div>
+        <div class="chip-panel" data-key="p-siapa"><div class="chip-panel-inner">Guru memakainya untuk mengajar; siswa memakainya untuk belajar mandiri maupun terbimbing.</div></div>
+        <div class="chip-panel" data-key="p-bentuk"><div class="chip-panel-inner">Cetak: buku, modul, lembar kerja. Digital: video, situs web, aplikasi pembelajaran, dan platform AI.</div></div>
+      </div>
+    </section>
+
+    <!-- 2 · Perbandingan -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="deco">⚖️</div>
+        <div class="wm">03</div>
+        <div class="eyebrow anim" style="--d:.05s">Perbandingan Definisi</div>
+        <h2 class="headline anim" style="--d:.15s">Dua sudut pandang, <span class="grad">satu maksud</span></h2>
+        <div class="hint anim" style="--d:.24s"><span class="pulse"></span> Arahkan kursor ke kartu lalu klik untuk membuka detailnya</div>
+        <div class="compare anim" style="--d:.34s">
+          <div class="compare-col ochre spot" data-key="babayev">
+            <div class="compare-name">Babayev <span class="chev">›</span></div>
+            <div class="compare-focus">Fokus pada bentuk</div>
+            <p class="base">Melihat bahan ajar dari wujudnya , buku, lembar kerja, video, dan website.</p>
+            <div class="compare-extra"><div class="compare-extra-inner">Pendekatan ini memudahkan guru memilih bahan ajar berdasarkan media yang tersedia di kelas.</div></div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="compare-col teal spot" data-key="area">
+            <div class="compare-name">Area <span class="chev">›</span></div>
+            <div class="compare-focus">Fokus pada tujuan</div>
+            <p class="base">Menekankan bahan ajar sebagai sarana yang sengaja dirancang untuk menghasilkan pembelajaran.</p>
+            <div class="compare-extra"><div class="compare-extra-inner">Pendekatan ini mendorong bahan ajar dirancang mulai dari hasil belajar yang ingin dicapai.</div></div>
+          </div>
+        </div>
+        <div class="synthesis anim spot" style="--d:.5s">💡 Satu melihat dari <b>wujudnya</b>, satu lagi dari <b>tujuan penggunaannya</b> , dua sisi yang saling melengkapi, bukan bertentangan.</div>
+      </div>
+    </section>
+
+    <!-- 3 · Fungsi 1 -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="deco">✅</div>
+        <div class="wm">04</div>
+        <div class="eyebrow anim" style="--d:.05s">Fungsi Bahan Ajar</div>
+        <h2 class="headline anim" style="--d:.15s">Bahan ajar sebagai <span class="grad">alat belajar</span></h2>
+        <p class="lede anim" style="--d:.24s">Empat fungsi awal menunjukkan bagaimana bahan ajar membantu siswa menerima, memahami, tertarik, dan aktif dalam pembelajaran.</p>
+        <div class="hint anim" style="--d:.32s"><span class="pulse"></span> Klik kartu untuk melihat penjelasan</div>
+        <div class="function-grid function-grid-four anim" style="--d:.42s">
+          <button class="function-card spot" data-panel="f1"><span class="fc-num">01</span><b>Sumber informasi</b><small>Isi pembelajaran disajikan secara terarah.</small></button>
+          <button class="function-card spot" data-panel="f2"><span class="fc-num">02</span><b>Memperjelas materi</b><small>Struktur dan media membantu pemahaman.</small></button>
+          <button class="function-card spot" data-panel="f3"><span class="fc-num">03</span><b>Meningkatkan motivasi</b><small>Materi yang sesuai menarik perhatian.</small></button>
+          <button class="function-card spot" data-panel="f4"><span class="fc-num">04</span><b>Mendorong keterlibatan</b><small>Siswa lebih aktif berinteraksi dengan materi.</small></button>
+        </div>
+        <div class="function-panel" data-key="f1"><div class="function-panel-inner">Menjadi acuan peserta didik untuk memperoleh isi pembelajaran secara terstruktur.</div></div>
+        <div class="function-panel" data-key="f2"><div class="function-panel-inner">Penyajian, contoh, dan media yang tepat dapat membuat materi lebih mudah dipahami.</div></div>
+        <div class="function-panel" data-key="f3"><div class="function-panel-inner">Bahan dan media yang sesuai kebutuhan peserta didik dapat meningkatkan ketertarikan terhadap proses belajar.</div></div>
+        <div class="function-panel" data-key="f4"><div class="function-panel-inner">Materi yang relevan dan dirancang untuk aktivitas dapat mendorong siswa berinteraksi lebih aktif.</div></div>
+      </div>
+    </section>
+
+    <!-- 4 · Fungsi 2 -->
+    <section class="slide function-slide-2">
+      <div class="slide-inner">
+        <div class="deco d2">📖</div>
+        <div class="wm">05</div>
+        <div class="eyebrow anim" style="--d:.05s">Fungsi Bahan Ajar</div>
+        <h2 class="headline anim" style="--d:.15s">Dari belajar mandiri sampai <span class="grad">hasil belajar</span></h2>
+        <p class="lede anim" style="--d:.24s">Empat fungsi berikut melengkapi peran bahan ajar sebagai pendukung siswa sekaligus alat bantu guru.</p>
+        <div class="hint anim" style="--d:.32s"><span class="pulse"></span> Klik kartu untuk melihat penjelasan</div>
+        <div class="function-grid function-grid-four anim" style="--d:.42s">
+          <button class="function-card spot" data-panel="f5"><span class="fc-num">05</span><b>Mendukung belajar mandiri</b><small>Materi dapat dipelajari kembali sesuai kebutuhan.</small></button>
+          <button class="function-card spot" data-panel="f6"><span class="fc-num">06</span><b>Membantu guru</b><small>Menjadi acuan dalam menyiapkan dan menyampaikan pembelajaran.</small></button>
+          <button class="function-card spot" data-panel="f7"><span class="fc-num">07</span><b>Memperkuat kebermaknaan</b><small>Menghubungkan isi dengan pengalaman belajar.</small></button>
+          <button class="function-card spot" data-panel="f8"><span class="fc-num">08</span><b>Mendukung hasil belajar</b><small>Selaras dengan tujuan, pengetahuan, keterampilan, dan sikap.</small></button>
+        </div>
+        <div class="function-panel" data-key="f5"><div class="function-panel-inner">Siswa dapat mengulang konsep, meninjau contoh, dan mempelajari prosedur sesuai kebutuhannya.</div></div>
+        <div class="function-panel" data-key="f6"><div class="function-panel-inner">Guru dapat menggunakan bahan ajar sebagai pedoman untuk menjelaskan, memberi contoh, dan mengarahkan latihan.</div></div>
+        <div class="function-panel" data-key="f7"><div class="function-panel-inner">Isi pembelajaran menjadi lebih bermakna ketika terhubung dengan pengalaman dan cara pengetahuan digunakan.</div></div>
+        <div class="function-panel" data-key="f8"><div class="function-panel-inner">Bahan ajar yang selaras dengan tujuan pembelajaran membantu pencapaian kompetensi secara lebih terarah.</div></div>
+      </div>
+    </section>
+
+    <!-- 4 · Hubungan CP -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="deco">🎯</div>
+        <div class="wm">06</div>
+        <div class="eyebrow anim" style="--d:.05s">Hubungan dengan Capaian Pembelajaran</div>
+        <h2 class="headline anim" style="--d:.15s">Dibuat <span class="grad">terarah</span>, bukan sekadar lengkap</h2>
+        <p class="lede anim" style="--d:.24s">Bahan ajar harus sesuai dengan capaian pembelajaran, karena isi dan kegiatannya digunakan untuk membantu siswa mencapai target yang ditetapkan.</p>
+        <div class="hint anim" style="--d:.32s"><span class="pulse"></span> Klik tiap kotak atau label hasil untuk melihat maknanya</div>
+        <div class="flow anim" style="--d:.42s" id="flow">
+          <div class="flow-step spot" data-key="sumber"><div class="k">Sumber</div><div class="v">Bahan Ajar</div></div>
+          <div class="flow-arrow"><div class="track"><div class="fill"></div></div><div class="head"></div></div>
+          <div class="flow-step spot" data-key="proses"><div class="k">Proses</div><div class="v">Kegiatan Belajar</div></div>
+          <div class="flow-arrow"><div class="track"><div class="fill"></div></div><div class="head"></div></div>
+          <div class="flow-step spot" data-key="hasil">
+            <div class="k">Hasil</div><div class="v">Capaian Pembelajaran</div>
+            <div class="flow-targets">
+              <span data-key="pengetahuan">🧠 Pengetahuan</span>
+              <span data-key="keterampilan">🛠️ Keterampilan</span>
+              <span data-key="sikap">💛 Sikap</span>
+            </div>
+          </div>
+        </div>
+        <div class="flow-detail" id="flowDetail"><div class="flow-detail-inner" id="flowDetailInner"></div></div>
+        <div class="principle anim" style="--d:.54s">
+          <span>① align → selaraskan dengan CP</span>
+          <span>② design → rancang kegiatan</span>
+          <span>③ deliver → bimbing siswa mencapai target</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · TI -->
+    <section class="slide ti-slide">
+      <div class="slide-inner">
+        <div class="deco">💻</div>
+        <div class="wm">07</div>
+        <div class="eyebrow anim" style="--d:.05s">Bahan Ajar dalam Pendidikan Kejuruan TI</div>
+        <h2 class="headline anim" style="--d:.15s">Harus dekat dengan <span class="grad">cara kerja nyata</span></h2>
+        <p class="lede anim" style="--d:.24s">Pendidikan kejuruan menekankan pengetahuan, keterampilan, sikap kerja, dan kompetensi yang dapat diterapkan pada bidang pekerjaan.</p>
+        <div class="hint anim" style="--d:.32s"><span class="pulse"></span> Pilih bagian untuk melihat implikasinya pada bahan ajar</div>
+        <div class="voc-grid anim" style="--d:.42s">
+          <button class="voc-card spot" data-panel="v1"><span>🧠</span><div class="voc-copy"><b>Pengetahuan</b><small>Konsep, prinsip, dan informasi teknis</small></div></button>
+          <button class="voc-card spot" data-panel="v2"><span>🛠️</span><div class="voc-copy"><b>Keterampilan</b><small>Langkah kerja, latihan, simulasi, dan proyek</small></div></button>
+          <button class="voc-card spot" data-panel="v3"><span>💛</span><div class="voc-copy"><b>Sikap kerja</b><small>Ketelitian, tanggung jawab, dan kebiasaan profesional</small></div></button>
+        </div>
+        <div class="voc-panel" data-key="v1"><div class="voc-panel-inner">Materi perlu tersusun sistematis agar konsep teknis dapat dipahami sebelum diterapkan.</div></div>
+        <div class="voc-panel" data-key="v2"><div class="voc-panel-inner">Pada TI, bahan ajar perlu memberi ruang untuk mencoba: pemrograman, jaringan, sistem komputer, atau penggunaan aplikasi.</div></div>
+        <div class="voc-panel" data-key="v3"><div class="voc-panel-inner">Aktivitas belajar sebaiknya tidak hanya mengejar jawaban, tetapi juga membentuk kebiasaan kerja yang relevan dengan dunia kerja.</div></div>
+        <div class="duality anim" style="--d:.58s">
+          <button class="word-btn a active" id="btnTeori">Teori</button>
+          <span class="plus">+</span>
+          <button class="word-btn b active" id="btnPraktik">Praktik</button>
+        </div>
+        <div class="duality-note anim" id="dualityNote" style="--d:.68s">✦ Bahan ajar yang efektif menghubungkan konsep dengan pengalaman menerapkannya.</div>
+      </div>
+    </section>
+
+    <!-- 6 · Contoh -->
+    <section class="slide application-slide">
+      <div class="slide-inner">
+        <div class="eyebrow anim" style="--d:.05s">Contoh Penerapan dalam Bidang TI</div>
+        <h2 class="headline anim" style="--d:.15s">Satu tujuan, <span class="grad">beragam bentuk</span></h2>
+        <p class="lede anim" style="--d:.24s">Bahan ajar tidak harus memilih satu media saja. Bentuk cetak dan digital dapat digunakan sesuai tujuan belajar, karakteristik peserta didik, dan kebutuhan praktik.</p>
+        <div class="format-row anim" style="--d:.34s">
+          <div class="format-card spot"><b>📚 Cetak</b><span>Buku, modul, lembar kerja</span></div>
+          <div class="format-card spot"><b>🌐 Digital</b><span>Web, slide, video, animasi, materi komputer</span></div>
+          <div class="format-card spot"><b>🤝 Aktivitas</b><span>Simulasi, proyek, latihan, dan kerja kolaboratif</span></div>
+        </div>
+        <div class="examples anim" style="--d:.46s" id="examplesList">
+          <div class="example-row spot"><div class="ico">💻</div><div class="example-body"><div class="example-tag">Pemrograman</div><div class="example-text">Modul langkah kerja + video tutorial + latihan coding.</div></div></div>
+          <div class="example-row spot"><div class="ico">🌐</div><div class="example-body"><div class="example-tag">Jaringan komputer</div><div class="example-text">Materi konsep + simulasi jaringan + lembar praktik.</div></div></div>
+          <div class="example-row spot"><div class="ico">🖥️</div><div class="example-body"><div class="example-tag">Sistem & aplikasi</div><div class="example-text">Panduan prosedur + demonstrasi + tugas berbasis kasus.</div></div></div>
+        </div>
+        <div class="synthesis anim spot" style="--d:.58s">💡 Intinya bukan seberapa banyak media digunakan, tetapi seberapa tepat bahan ajar membantu peserta didik mencapai kompetensi.</div>
+      </div>
+    </section>
+
+    <!-- 7 · Kesimpulan -->
+    <section class="slide slide-close">
+      <div class="slide-inner">
+        <div class="deco">🏁</div>
+        <div class="wm">09</div>
+        <div class="eyebrow anim" style="--d:.05s">Kesimpulan</div>
+        <p class="close-text" id="closeText">Bahan ajar yang baik harus jelas, sesuai tujuan pembelajaran, dan membantu siswa memahami teori serta melatih keterampilan.</p>
+        <p class="close-sub anim" style="--d:2s">Dalam teknologi informasi khususnya, bahan ajar <span style="color:var(--cyan);font-weight:600;">digital</span> sangat mendukung pembelajaran yang berorientasi praktik , konsep dipahami, keterampilan dipraktikkan.</p>
+        <div class="takeaways anim" style="--d:2.2s">
+          <div class="takeaway spot">🎯 Selaras dengan capaian pembelajaran</div>
+          <div class="takeaway spot">📚 Jelas &amp; terarah untuk dua peran</div>
+          <div class="takeaway spot">⚡ Teori + praktik berjalan bersama</div>
+        </div>
+        <div class="replay-btn anim" style="--d:2.4s"><button class="btn-ghost" id="replayBtn">↺ Ulangi dari awal</button></div>
+      </div>
+    </section>
+
+
+
+  </div>
+  <div class="slide-hint-corner" id="cornerHint">← → untuk navigasi</div>
+  <div class="counter" id="counter">01 / 09</div>
+  <div class="tool-btns">
+    <button class="tool-btn" id="autoBtn">▶ Auto</button>
+    <button class="tool-btn" id="fsBtn">⛶ Layar penuh</button>
+  </div>
+  <div class="controls">
+    <button class="nav-btn" id="prevBtn" aria-label="Sebelumnya">‹</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" id="nextBtn" aria-label="Berikutnya">›</button>
+  </div>
+
+  <div class="marquee"><div class="marquee-track" id="marqueeTrack">
+    <span><i>✦</i>Bahan Ajar</span><span><i>✦</i>Definisi</span><span><i>✦</i>Fungsi</span><span><i>✦</i>Capaian Pembelajaran</span><span><i>✦</i>Cetak &amp; Digital</span><span><i>✦</i>Teknologi Informasi</span><span><i>✦</i>Teori + Praktik</span><span><i>✦</i>Interaktif</span>
+  </div></div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+/* ================= Particles background ================= */
+(function(){
+  const cv = document.getElementById('bg'), ctx = cv.getContext('2d');
+  let W, H, pts = [];
+  const COLORS = ['139,92,246','34,211,238','251,191,36'];
+  function resize(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
+  resize(); addEventListener('resize', resize);
+  const N = Math.min(90, Math.floor(innerWidth/16));
+  for(let i=0;i<N;i++){
+    pts.push({x:Math.random()*innerWidth, y:Math.random()*innerHeight,
+      vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35,
+      r:Math.random()*1.8+.6, c:COLORS[i%3], a:Math.random()*.5+.2});
+  }
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of pts){
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,7);
+      ctx.fillStyle='rgba('+p.c+','+p.a+')'; ctx.fill();
+    }
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const a=pts[i],b=pts[j],dx=a.x-b.x,dy=a.y-b.y,d=dx*dx+dy*dy;
+      if(d<130*130){
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle='rgba(139,92,246,'+(0.10*(1-d/(130*130)))+')';
+        ctx.lineWidth=.7; ctx.stroke();
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* ================= Confetti ================= */
+const confetti = (function(){
+  const cv = document.getElementById('confetti'), ctx = cv.getContext('2d');
+  let parts = [], raf = null;
+  function resize(){ cv.width = innerWidth; cv.height = innerHeight; }
+  resize(); addEventListener('resize', resize);
+  const COLORS = ['#8b5cf6','#22d3ee','#fbbf24','#fb7185','#34d399','#eef2ff'];
+  function burst(n, ox, oy){
+    ox = ox===undefined ? innerWidth/2 : ox;
+    oy = oy===undefined ? innerHeight/2 : oy;
+    for(let i=0;i<n;i++){
+      const ang = Math.random()*Math.PI*2, sp = Math.random()*13+4;
+      parts.push({x:ox, y:oy, vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp-4,
+        w:Math.random()*9+4, h:Math.random()*5+3, c:COLORS[(Math.random()*COLORS.length)|0],
+        rot:Math.random()*Math.PI, vr:(Math.random()-.5)*.3, life:1, decay:Math.random()*.008+.006});
+    }
+    if(!raf) loop();
+  }
+  function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    parts = parts.filter(p => p.life>0);
+    for(const p of parts){
+      p.vy += .28; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.decay;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0,p.life);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    }
+    if(parts.length){ raf = requestAnimationFrame(loop); }
+    else { raf = null; ctx.clearRect(0,0,cv.width,cv.height); }
+  }
+  return { burst };
+})();
+
+/* ================= Custom cursor ================= */
+(function(){
+  if(!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+  const dot = document.getElementById('cursorDot'), ring = document.getElementById('cursorRing');
+  let mx = innerWidth/2, my = innerHeight/2, rx = mx, ry = my;
+  addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx+'px'; dot.style.top = my+'px';
+  });
+  (function follow(){
+    rx += (mx-rx)*.16; ry += (my-ry)*.16;
+    ring.style.left = rx+'px'; ring.style.top = ry+'px';
+    requestAnimationFrame(follow);
+  })();
+  document.addEventListener('mouseover', e => {
+    if(e.target.closest('button, a, .chip, .compare-col, .flow-step, .example-row, .role-list li, .dot, .word-btn, .flow-targets span')) ring.classList.add('hovering');
+  });
+  document.addEventListener('mouseout', e => {
+    if(e.target.closest('button, a, .chip, .compare-col, .flow-step, .example-row, .role-list li, .dot, .word-btn, .flow-targets span')) ring.classList.remove('hovering');
+  });
+})();
+
+/* ================= Spotlight hover (delegasi) ================= */
+document.addEventListener('mousemove', e => {
+  const el = e.target.closest('.spot');
+  if(!el) return;
+  const r = el.getBoundingClientRect();
+  el.style.setProperty('--mx', ((e.clientX-r.left)/r.width*100)+'%');
+  el.style.setProperty('--my', ((e.clientY-r.top)/r.height*100)+'%');
+});
+
+/* ================= Magnetic nav buttons ================= */
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    btn.style.transform = 'translate('+((e.clientX-r.left-r.width/2)*.3)+'px,'+((e.clientY-r.top-r.height/2)*.3)+'px)';
+  });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+});
+
+/* ================= Text scramble (kicker) ================= */
+const SCRAMBLE_CHARS = '!<>-_\\/[]{},=+*^?#01';
+function scramble(el, text, dur){
+  dur = dur || 900;
+  const start = performance.now(), len = text.length;
+  function frame(t){
+    const p = Math.min(1, (t-start)/dur);
+    const reveal = Math.floor(p*len);
+    let out = '';
+    for(let i=0;i<len;i++){
+      out += i < reveal ? text[i] : SCRAMBLE_CHARS[(Math.random()*SCRAMBLE_CHARS.length)|0];
+    }
+    el.textContent = out;
+    if(p < 1) requestAnimationFrame(frame); else el.textContent = text;
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ================= Animated counters ================= */
+function animateCounters(root){
+  (root || document).querySelectorAll('.count-num').forEach(el => {
+    const target = +el.dataset.count;
+    if(isNaN(target)) return;
+    const dur = 900, start = performance.now();
+    function step(t){
+      const p = Math.min(1, (t-start)/dur);
+      el.textContent = Math.round(target * (1 - Math.pow(1-p, 3)));
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ================= Marquee (duplikasi track) ================= */
+(function(){
+  const track = document.getElementById('marqueeTrack');
+  track.innerHTML += track.innerHTML;
+})();
+
+/* ================= Navigation ================= */
+const slidesEl = document.getElementById('slides');
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+const counterEl = document.getElementById('counter');
+const progressFill = document.getElementById('progressFill');
+const cornerHint = document.getElementById('cornerHint');
+let current = 0, autoTimer = null;
+const total = slides.length;
+
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.title = 'Slide ' + (i+1);
+  d.addEventListener('click', () => { goTo(i); pokeAuto(); });
+  dotsEl.appendChild(d);
+});
+const dots = document.querySelectorAll('.dot');
+
+function onSlideEnter(i){
+  const inner = slides[i].querySelector('.slide-inner');
+  if(i === 0){
+    // Halaman awal sengaja dibuat tenang: hanya judul dan nama.
+  }
+  if(i === 3) animateCounters(inner);
+}
+
+function render(){
+  slidesEl.style.transform = 'translateX(-' + (current * 100) + 'vw)';
+  dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  counterEl.textContent = '';
+  progressFill.style.width = '0%';
+  cornerHint.textContent = '';
+  slides.forEach(s => s.classList.remove('in'));
+  void slidesEl.offsetWidth;
+  slides[current].classList.add('in');
+  onSlideEnter(current);
+}
+function goTo(i){ current = Math.max(0, Math.min(total-1, i)); render(); }
+function next(){ goTo(current+1); }
+function prev(){ goTo(current-1); }
+
+document.getElementById('nextBtn').addEventListener('click', () => { next(); pokeAuto(); });
+document.getElementById('prevBtn').addEventListener('click', () => { prev(); pokeAuto(); });
+
+addEventListener('keydown', (e) => {
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  const k = e.key;
+  if(['ArrowRight','PageDown',' '].includes(k)){ e.preventDefault(); next(); pokeAuto(); }
+  else if(['ArrowLeft','PageUp'].includes(k)){ e.preventDefault(); prev(); pokeAuto(); }
+  else if(k === 'Home'){ goTo(0); }
+  else if(k === 'End'){ goTo(total-1); }
+  else if(k.toLowerCase() === 'f'){ toggleFS(); }
+  else if(k.toLowerCase() === 'a'){ toggleAuto(); }
+});
+
+let touchX = null;
+document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  if(touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 55){ dx < 0 ? next() : prev(); pokeAuto(); }
+  touchX = null;
+}, {passive:true});
+
+/* Fullscreen */
+function toggleFS(){
+  if(!document.fullscreenElement){ document.documentElement.requestFullscreen().catch(()=>{}); }
+  else { document.exitFullscreen(); }
+}
+document.getElementById('fsBtn').addEventListener('click', toggleFS);
+
+/* Autoplay */
+const autoBtn = document.getElementById('autoBtn');
+function stopAuto(){ if(autoTimer){ clearInterval(autoTimer); autoTimer = null; autoBtn.classList.remove('on'); autoBtn.textContent = '▶ Auto'; } }
+function startAuto(){ autoTimer = setInterval(() => { if(current < total-1) next(); else stopAuto(); }, 7000); autoBtn.classList.add('on'); autoBtn.textContent = '⏸ Auto'; }
+function toggleAuto(){ autoTimer ? stopAuto() : startAuto(); }
+function pokeAuto(){ if(autoTimer){ clearInterval(autoTimer); autoTimer = setInterval(() => { if(current < total-1) next(); else stopAuto(); }, 7000); } }
+autoBtn.addEventListener('click', toggleAuto);
+
+/* ================= Slide 1 · chips ================= */
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const key = chip.dataset.panel;
+    const panel = document.querySelector('.chip-panel[data-key="'+key+'"]');
+    const isOpen = panel.classList.contains('open');
+    document.querySelectorAll('.chip-panel').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    if(!isOpen){ panel.classList.add('open'); chip.classList.add('active'); }
+  });
+});
+
+/* ================= Slide 2 · compare (tilt + accordion) ================= */
+document.querySelectorAll('.compare-col').forEach(col => {
+  col.addEventListener('mousemove', e => {
+    if(innerWidth < 820) return;
+    const r = col.getBoundingClientRect();
+    const x = (e.clientX-r.left)/r.width - .5, y = (e.clientY-r.top)/r.height - .5;
+    col.style.transform = 'rotateY('+(x*7)+'deg) rotateX('+(-y*7)+'deg) translateY(-3px)';
+  });
+  col.addEventListener('mouseleave', () => { col.style.transform = ''; });
+  col.addEventListener('click', () => col.classList.toggle('open'));
+});
+
+/* ================= Slide 3 · checklist ================= */
+const checkRing = document.getElementById('checkRing');
+const checkPct = document.getElementById('checkPct');
+let celebrated = false;
+function updateChecklist(){
+  let doneAll = 0, totalAll = 0;
+  ['guru','siswa'].forEach(role => {
+    const items = document.querySelectorAll('.role-list[data-role="'+role+'"] li');
+    const done = [...items].filter(li => li.classList.contains('done')).length;
+    document.getElementById(role === 'guru' ? 'countGuru' : 'countSiswa').textContent = done + ' / ' + items.length;
+    doneAll += done; totalAll += items.length;
+  });
+  const pct = Math.round(doneAll/totalAll*100);
+  checkRing.style.background = 'conic-gradient(var(--cyan) ' + (pct*3.6) + 'deg, rgba(255,255,255,.07) 0deg)';
+  checkPct.textContent = pct + '%';
+  const line = document.getElementById('progressLine');
+  if(doneAll === 0) line.innerHTML = 'Belum ada poin yang ditandai. <strong>Coba klik salah satunya!</strong>';
+  else if(doneAll === totalAll){
+    line.innerHTML = '<strong>Semua poin sudah dipahami , luar biasa! 🎉</strong>';
+    if(!celebrated){ celebrated = true; confetti.burst(120); }
+  }
+  else line.innerHTML = '<strong>'+doneAll+'</strong> dari ' + totalAll + ' poin sudah ditandai , lanjutkan!';
+}
+document.querySelectorAll('.role-list li').forEach(li => {
+  li.addEventListener('click', () => { li.classList.toggle('done'); updateChecklist(); });
+});
+
+/* ================= Slide 4 · flow ================= */
+const flowSteps = document.querySelectorAll('.flow-step');
+const flowArrows = document.querySelectorAll('.flow-arrow');
+const flowDetail = document.getElementById('flowDetail');
+const flowDetailInner = document.getElementById('flowDetailInner');
+const flowInfo = {
+  sumber: '📚 Titik awal: materi atau sumber belajar yang disiapkan guru.',
+  proses: '🔄 Bahan ajar digunakan dalam kegiatan belajar mengajar sehari-hari.',
+  hasil: '🎯 Muara dari proses belajar , target yang ingin dicapai siswa.',
+  pengetahuan: '🧠 Memahami konsep dan teori yang diajarkan.',
+  keterampilan: '🛠️ Mampu menerapkan pengetahuan dalam praktik nyata.',
+  sikap: '💛 Nilai dan sikap yang terbentuk selama proses belajar.'
+};
+function showFlowDetail(key){
+  flowDetailInner.textContent = flowInfo[key] || '';
+  flowDetail.classList.remove('open');
+  setTimeout(() => flowDetail.classList.add('open'), 60);
+}
+flowSteps.forEach((step, i) => {
+  step.addEventListener('click', e => {
+    if(e.target.closest('.flow-targets')) return;
+    flowSteps.forEach(s => s.classList.remove('active'));
+    step.classList.add('active');
+    flowArrows.forEach((a, ai) => a.classList.toggle('lit', ai < i));
+    showFlowDetail(step.dataset.key);
+  });
+});
+document.querySelectorAll('.flow-targets span').forEach(span => {
+  span.addEventListener('click', e => {
+    e.stopPropagation();
+    document.querySelectorAll('.flow-targets span').forEach(s => s.classList.remove('active'));
+    span.classList.add('active');
+    flowSteps.forEach((s, si) => { s.classList.toggle('active', si === 2); });
+    flowArrows.forEach(a => a.classList.add('lit'));
+    showFlowDetail(span.dataset.key);
+  });
+});
+
+/* ================= Slide 5 · duality -> slide 6 filter ================= */
+const btnTeori = document.getElementById('btnTeori');
+const btnPraktik = document.getElementById('btnPraktik');
+const dualityNote = document.getElementById('dualityNote');
+function setDuality(which){
+  dualityNote.classList.add('swap');
+  setTimeout(() => {
+    if(which === 'teori'){
+      btnTeori.classList.add('active'); btnPraktik.classList.remove('active');
+      dualityNote.textContent = '📐 Sisi teori: siswa membangun pemahaman konsep terlebih dahulu.';
+    } else if(which === 'praktik'){
+      btnPraktik.classList.add('active'); btnTeori.classList.remove('active');
+      dualityNote.textContent = '🛠️ Sisi praktik: siswa melatih keterampilan menggunakan teknologi secara langsung.';
+    } else {
+      btnTeori.classList.add('active'); btnPraktik.classList.add('active');
+      dualityNote.textContent = '✦ Keduanya selalu berjalan berdampingan dalam bahan ajar TI.';
+    }
+    dualityNote.classList.remove('swap');
+  }, 180);
+  // Teori/Praktik hanya mengubah tampilan bagian ini.
+  // Jangan memanggil filter contoh global, karena itu dapat menyembunyikan
+  // kartu pada slide 'Contoh Penerapan' yang tidak memiliki data-cat.
+}
+btnTeori.addEventListener('click', () => setDuality(btnTeori.classList.contains('active') && !btnPraktik.classList.contains('active') ? 'semua' : 'teori'));
+btnPraktik.addEventListener('click', () => setDuality(btnPraktik.classList.contains('active') && !btnTeori.classList.contains('active') ? 'semua' : 'praktik'));
+
+/* ================= Slide 6 · filter ================= */
+function applyFilter(filter){
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const rows = document.querySelectorAll('.example-row[data-cat]');
+  if(!filterButtons.length || !rows.length) return;
+  filterButtons.forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+  rows.forEach(row => {
+    const show = filter === 'semua' || row.dataset.cat === filter;
+    row.classList.toggle('hidden', !show);
+  });
+}
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
+});
+
+/* ================= Slide 7 · word-by-word ================= */
+(function(){
+  const el = document.getElementById('closeText');
+  const highlight = {'teori':'hl-a','keterampilan':'hl-c','jelas':'hl-v','tujuan':'hl-v'};
+  const words = el.textContent.trim().split(/\s+/);
+  el.innerHTML = words.map((w,i) => {
+    const clean = w.toLowerCase().replace(/[^a-z]/g,'');
+    const cls = highlight[clean] || '';
+    return '<span class="w '+cls+'" style="--i:'+i+'">'+w+'</span>';
+  }).join(' ');
+})();
+document.getElementById('replayBtn').addEventListener('click', () => { goTo(0); confetti.burst(60); });
+
+/* ================= Robust presentation pop-up ================= */
+(function(){
+  const modal = document.getElementById('presentationModal');
+  const title = document.getElementById('modalTitle');
+  const kicker = document.getElementById('modalKicker');
+  const body = document.getElementById('modalBody');
+  const closeBtn = document.getElementById('modalClose');
+  if(!modal || !title || !kicker || !body || !closeBtn) return;
+
+  let lastTrigger = null;
+  function openModal(trigger, titleText, bodyText, kickerText){
+    lastTrigger = trigger || null;
+    title.textContent = titleText || 'Detail';
+    kicker.textContent = kickerText || 'Penjelasan';
+    body.textContent = bodyText || 'Tidak ada penjelasan tambahan.';
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.classList.add('modal-open');
+    requestAnimationFrame(() => closeBtn.focus());
+  }
+  function closeModal(){
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+    document.body.classList.remove('modal-open');
+    if(lastTrigger && typeof lastTrigger.focus === 'function') lastTrigger.focus();
+  }
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+  });
+
+  // Capture-phase delegation: works even when another initialization routine fails later.
+  document.addEventListener('click', function(e){
+    const target = e.target.closest && e.target.closest(
+      '.chip[data-panel], .function-card[data-panel], .voc-card[data-panel], .compare-col[data-key], .flow-step[data-key], .flow-targets span[data-key]'
+    );
+    if(!target || modal.contains(target)) return;
+
+    // Do not let the flow target bubble into its parent flow-step handler.
+    if(target.closest('.flow-targets span[data-key]')) e.stopPropagation();
+
+    let titleText = 'Detail';
+    let bodyText = '';
+    let kickerText = 'Penjelasan';
+
+    if(target.matches('.chip[data-panel]')){
+      const panel = target.closest('.slide-inner')?.querySelector(`.chip-panel[data-key="${CSS.escape(target.dataset.panel)}"]`);
+      titleText = target.querySelector('b')?.textContent.trim() || 'Detail';
+      bodyText = panel?.querySelector('.chip-panel-inner')?.textContent.trim() || target.querySelector('small')?.textContent.trim() || '';
+      kickerText = 'Pengertian bahan ajar';
+    } else if(target.matches('.function-card[data-panel], .voc-card[data-panel]')){
+      const panel = target.closest('.slide-inner')?.querySelector(`.function-panel[data-key="${CSS.escape(target.dataset.panel)}"], .voc-panel[data-key="${CSS.escape(target.dataset.panel)}"]`);
+      titleText = target.querySelector('b')?.textContent.trim() || 'Detail';
+      bodyText = panel?.querySelector('.function-panel-inner, .voc-panel-inner')?.textContent.trim() || target.querySelector('small')?.textContent.trim() || '';
+      kickerText = 'Fungsi bahan ajar';
+    } else if(target.matches('.compare-col[data-key]')){
+      titleText = target.querySelector('.compare-name')?.textContent.replace('›','').trim() || 'Perbandingan';
+      bodyText = target.querySelector('.compare-extra-inner')?.textContent.trim() || target.querySelector('.base')?.textContent.trim() || '';
+      kickerText = target.querySelector('.compare-focus')?.textContent.trim() || 'Perbandingan definisi';
+    } else if(target.matches('.flow-targets span[data-key]')){
+      const info = {
+        pengetahuan: '🧠 Memahami konsep dan teori yang diajarkan.',
+        keterampilan: '🛠️ Mampu menerapkan pengetahuan dalam praktik nyata.',
+        sikap: '💛 Nilai dan sikap yang terbentuk selama proses belajar.'
+      };
+      titleText = target.textContent.trim();
+      bodyText = info[target.dataset.key] || '';
+      kickerText = 'Capaian pembelajaran';
+    } else if(target.matches('.flow-step[data-key]')){
+      const info = {
+        sumber: '📚 Titik awal: materi atau sumber belajar yang disiapkan guru.',
+        proses: '🔄 Bahan ajar digunakan dalam kegiatan belajar mengajar sehari-hari.',
+        hasil: '🎯 Muara dari proses belajar — target yang ingin dicapai siswa.'
+      };
+      titleText = target.querySelector('.v')?.textContent.trim() || 'Detail';
+      bodyText = info[target.dataset.key] || '';
+      kickerText = 'Hubungan dengan capaian pembelajaran';
+    }
+
+    if(bodyText){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      openModal(target, titleText, bodyText, kickerText);
+    }
+  }, true);
+
+  // Expose tiny API for debugging/use from console.
+  window.presentationPopup = { open: openModal, close: closeModal };
+})();
+
+/* ================= Init ================= */
+render();
+
+// Checklist is optional on pages where its visual elements are absent.
+function updateChecklist(){
+  const ring = document.getElementById('checkRing');
+  const pctEl = document.getElementById('checkPct');
+  const line = document.getElementById('progressLine');
+  const roles = ['guru','siswa'];
+  let doneAll = 0, totalAll = 0;
+  roles.forEach(role => {
+    const items = document.querySelectorAll('.role-list[data-role="'+role+'"] li');
+    const done = [...items].filter(li => li.classList.contains('done')).length;
+    const countEl = document.getElementById(role === 'guru' ? 'countGuru' : 'countSiswa');
+    if(countEl) countEl.textContent = done + ' / ' + items.length;
+    doneAll += done;
+    totalAll += items.length;
+  });
+  if(ring && pctEl && totalAll){
+    const pct = Math.round(doneAll / totalAll * 100);
+    ring.style.background = 'conic-gradient(var(--cyan) ' + (pct*3.6) + 'deg, rgba(255,255,255,.07) 0deg)';
+    pctEl.textContent = pct + '%';
+    if(line){
+      if(doneAll === 0) line.innerHTML = 'Belum ada poin yang ditandai. <strong>Coba klik salah satunya!</strong>';
+      else if(doneAll === totalAll) line.innerHTML = '<strong>Semua poin sudah dipahami, luar biasa! 🎉</strong>';
+      else line.innerHTML = '<strong>'+doneAll+'</strong> dari ' + totalAll + ' poin sudah ditandai, lanjutkan!';
+    }
+  }
+}
+
+// Existing interactions remain intact; popup is independent from them.
+document.querySelectorAll('.role-list li').forEach(li => {
+  li.addEventListener('click', () => { li.classList.toggle('done'); updateChecklist(); });
+});
+
+</script>
+
+
+<style>
+/* ---------- TI cards: force clean left alignment ---------- */
+.ti-slide .voc-card{
+  text-align:left !important;
+  align-items:start !important;
+  justify-items:start !important;
+}
+.ti-slide .voc-card b{
+  text-align:left !important;
+  justify-self:start !important;
+  align-self:start !important;
+  width:100%;
+  margin:0 !important;
+}
+.ti-slide .voc-card small{
+  text-align:left !important;
+  justify-self:start !important;
+  align-self:start !important;
+  width:100%;
+  margin-top:5px !important;
+}
+.ti-slide .voc-card span{
+  justify-self:start !important;
+  align-self:start !important;
+}
+/* ---------- Application examples: never disappear from unrelated filters ---------- */
+.application-slide .examples .example-row{
+  opacity:1;
+  max-height:130px;
+  padding-top:16px;
+  padding-bottom:16px;
+  margin:0;
+  border-width:1px;
+  transform:none;
+  pointer-events:auto;
+}
+@media (max-width:700px){
+  .application-slide .examples .example-row{max-height:none;}
+}
+</style>
+</body>
+</html>
